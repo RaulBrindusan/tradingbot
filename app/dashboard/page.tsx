@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTradeStore } from '../store/useTradeStore';
 import { usePortfolioStore } from '../store/usePortfolioStore';
 import { PnLChart } from '../components/charts/PnLChart';
@@ -10,8 +10,13 @@ import { Card } from '../components/ui/Card';
 import { formatCurrency, formatPercent, getColorClass } from '../lib/utils';
 
 export default function DashboardPage() {
+  const [mounted, setMounted] = useState(false);
   const { fetchTrades, trades } = useTradeStore();
   const { fetchPositions, fetchPerformance, account, getTotalPnL, performance } = usePortfolioStore();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // Initial fetch
@@ -33,6 +38,15 @@ export default function DashboardPage() {
   const totalPnLPct = account?.portfolio_value
     ? (totalPnL / (account.portfolio_value - totalPnL)) * 100
     : 0;
+
+  // Prevent hydration errors by only rendering on client
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
