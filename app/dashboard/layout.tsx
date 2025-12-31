@@ -35,7 +35,7 @@ export default function DashboardLayout({
                 Trading Bot
               </Link>
             </div>
-            <nav className="flex space-x-4">
+            <nav className="flex space-x-4" suppressHydrationWarning>
               {navigation.map((item) => {
                 const isActive = clientPathname === item.href || clientPathname?.startsWith(item.href + '/');
                 return (
