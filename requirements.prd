@@ -1,0 +1,247 @@
+Product Overview
+This Product Requirements Document (PRD) outlines a full-stack trading bot platform for automated stock market trading. The system enables users to define, backtest, paper trade, and deploy live trading strategies with real money, emphasizing safety through rigorous testing phases. Core components include a Python-based trading bot core, React frontend for dashboards and strategy management, and Firebase backend for user auth, real-time data sync, and trade logging.​
+
+Target users: Tech-savvy developers like full-stack engineers building automation tools, with interests in low-cost, self-hosted stacks (e.g., Supabase alternatives via Firebase free tier). MVP focuses on US stocks via Alpaca API, expandable to options/crypto. Success metrics: 80% strategy uptime, <1% live drawdown in first 3 months, 1000 backtests/month.​
+
+Key Features and User Stories
+Strategy Builder: Users define rules (e.g., SMA crossover) via drag-and-drop UI or code editor.
+
+As a user, I want to input indicators (RSI, MACD) and risk params (stop-loss 2%) so the bot generates executable logic.
+
+Backtesting Engine: Replay historical data to validate performance.
+
+As a user, I want metrics like Sharpe ratio, max drawdown on 5-year data so I assess viability before live.
+
+Paper Trading Dashboard: Real-time simulated trades with live market data.
+
+As a user, I want live P&L charts and alert notifications so I monitor without risk.
+
+Live Trading Deployment: Switch to real money with safeguards.
+
+As a user, I want API key vaults and position limits so deployments are secure.
+
+Portfolio Analytics: Multi-strategy oversight with heatmaps.
+
+As a user, I want win-rate tables across bots so I optimize allocation.
+
+Real-time Notifications: SMS/push via Firebase Cloud Messaging.
+
+As a user, I want trade execution alerts so I stay informed 24/7.
+
+Prioritized MVP: Strategy builder + backtest + paper trade. Post-MVP: Multi-bot orchestration, ML strategy optimization.​​
+
+Technical Architecture
+text
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   React Frontend│◄──►│ Firebase Backend │◄──►│ Python Bot Core │
+│     (Next.js)   │    │ (Auth, RTDB,     │    │ (Alpaca, CCXT)  │
+└─────────────────┘    │  FCM, Functions) │    └──────────┬──────┘
+                        └──────────────────┘               │
+                                     │                     │
+                                     ▼                     ▼
+                            ┌─────────────────┐    ┌──────────────┐
+                            │   Market APIs   │    │   VPS/Cloud  │
+                            │ (Alpaca, Polygon│    │ (Backtrader, │
+                            │     .io)        │    │   Scheduler) │
+                            └─────────────────┘    └──────────────┘
+Data Flow: Frontend polls Firebase RTDB for bot status; bot pushes trade logs via Firebase Admin SDK; WebSockets for live quotes.
+
+Deployment: Frontend on Vercel/Netlify; Backend Firebase (free tier: 1GB DB, 10GB Functions); Bot on DigitalOcean droplet ($6/mo) with Docker.​
+
+Frontend Stack and Components
+Framework: Next.js 15 (React 19) for SSR dashboards, Tailwind CSS for responsive UI, Chart.js/Recharts for P&L graphs. Auth via Firebase JS SDK.​
+
+Key Pages:
+
+/dashboard: Portfolio overview with strategy cards, live P&L table.
+
+text
+| Strategy | Status | P&L (24h) | Win Rate | Actions |
+|----------|--------|-----------|----------|---------|
+| SMA-XO  | Live  | +1.2%    | 62%     | Pause  |
+/strategy-builder: Visual editor with blocks (Indicators → Conditions → Actions).
+
+/backtest: Upload CSV or fetch historicals, run simulations, export PDF reports.
+
+/paper-trading: Real-time candlestick charts, order book simulation.
+
+Components:
+
+jsx
+// StrategyCard.jsx
+const StrategyCard = ({ name, pnl, status }) => (
+  <Card className="p-4 shadow-lg">
+    <h3>{name}</h3>
+    <LineChart data={pnlHistory} />
+    <Button onClick={deployStrategy}>Deploy Live</Button>
+  </Card>
+);
+State: Zustand for local (UI), Firebase hooks (useRealtimeDB) for sync.
+
+Mobile: Responsive via Tailwind, PWA for notifications.​
+
+Backend Stack: Firebase Configuration
+Services:
+
+Authentication: Firebase Auth (email/password, Google). Rules: allow read, write: if request.auth != null;. Link user UID to /users/{uid}/strategies.​
+
+Realtime Database: JSON structure for low-latency sync.
+
+text
+{
+  "users": {
+    "uid123": {
+      "strategies": {
+        "strat1": {
+          "config": { "sma_short": 10, "risk_per_trade": 0.02 },
+          "backtests": [{ date: "2025-12-31", sharpe: 1.8 }],
+          "status": "paper",
+          "pnl": 1250.50
+        }
+      },
+      "api_keys": { "alpaca": "encrypted_key" }  // Vault via Functions
+    }
+  },
+  "global": { "market_status": "open" }
+}
+Cloud Functions: Python/Node runtime for:
+
+encryptApiKey: Store Alpaca keys securely.
+
+runBacktest: Trigger Backtrader on historical data.
+
+deployBot: Deploy to VPS via webhook.​
+
+Firestore (Optional Scale): For analytics queries if RTDB cascades.
+
+FCM: Push notifications for trade fills: "Bot executed BUY AAPL @ $150".​
+
+Security Rules (RTDB):
+
+json
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    }
+  }
+}
+Free tier suffices for 10 users; scale to Blaze plan ($0.06/GB).​
+
+Bot Core: Python Implementation
+Language: Python 3.12 for ecosystem (pandas, TA-Lib).
+Libraries:
+
+alpaca-py: Trading + paper mode.
+
+backtrader: Backtesting.
+
+ccxt: Multi-exchange fallback.
+
+firebase-admin: Push logs to Firebase.
+
+asyncio: Real-time loop.
+
+schedule: Cron for EOD rebalances.​​
+
+Core Modules:
+
+Data Fetcher (data.py):
+
+python
+import alpaca_trade_api as tradeapi
+api = tradeapi.REST(key_id, secret_key, paper=True)
+bars = api.get_bars("AAPL", "1Min", limit=1000).df
+Strategy Engine (strategy.py):
+
+SMA Crossover: if sma10 > sma50: buy().
+
+Risk: position_size = capital * 0.01 / atr.
+
+Executor (executor.py):
+
+python
+async def trading_loop():
+    while market_open:
+        signal = strategy.generate(bars)
+        if signal == "BUY":
+            api.submit_order(symbol, qty, "buy", "market")
+            db.child("users/uid/strategies/strat1/trades").push(order_data)
+Backtester (backtest.py):
+
+python
+cerebro = bt.Cerebro()
+cerebro.addstrategy(MyStrategy)
+cerebro.adddata(bt.feeds.PandasData(dataname=bars))
+results = cerebro.run()
+sharpe = cerebro.analyzers.SharpeRatio.get_analysis()
+Deployment: Vercel 
+
+text
+FROM python:3.12-slim
+COPY . /app
+RUN pip install -r requirements.txt
+CMD ["python", "main.py"]
+PM2/EC2 cron: Run 9:30AM-4PM ET. Logs to Firebase + Sentry.​
+
+Data Sources and Integrations
+Historical: Alpaca (free 2y 1min), Polygon.io ($49/mo unlimited).
+
+Live: Alpaca WebSocket for quotes/trades.
+
+Strategies: Pre-built (SMA, RSI), user YAML configs synced via Firebase.
+
+Metrics: Custom analyzers for expectancy, profit factor.
+Limits: Paper unlimited; live starts $1000 min.​​
+
+Security and Risk Management
+API Keys: Encrypted in Firebase Functions, never frontend-exposed.
+
+Risk Controls: Hard-coded: Max 2% risk/trade, 10% daily drawdown halt.
+
+Compliance: Log all trades for audit; US residents only (Alpaca req).
+
+Auth: Firebase + JWT for all endpoints; bot impersonates user UID.​
+
+Rate Limits: Throttle API calls to avoid bans.
+
+Development Roadmap and Milestones
+Phase 1 (2 weeks): Firebase setup, React auth/dashboard skeleton, basic backtester.
+Phase 2 (3 weeks): Strategy builder, Alpaca integration, paper trading.
+Phase 3 (2 weeks): Live deploy, notifications, VPS Docker.
+Phase 4 (Ongoing): Analytics, ML indicators, multi-exchange.
+
+Testing:
+
+Unit: Jest (frontend), pytest (bot).
+
+E2E: Cypress for workflows.
+
+Backtest: 100+ historical runs.
+
+Load: 50 concurrent strategies.
+
+Costs: Firebase free, Alpaca free paper, VPS $6/mo, Polygon $0-49/mo.​
+
+Appendix: Sample Configurations
+Strategy YAML (Stored in Firebase):
+
+text
+name: SMA Crossover
+indicators:
+  sma_short: 10
+  sma_long: 50
+risk:
+  stop_loss_pct: 0.02
+  max_positions: 5
+Requirements.txt:
+
+text
+alpaca-py==0.28.0
+backtrader==1.9.78.123
+firebase-admin==6.5.0
+pandas==2.2.2
+ta-lib==0.4.28
