@@ -1,9 +1,9 @@
 'use client';
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { usePortfolioStore } from '@/store/usePortfolioStore';
+import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency } from '../../lib/utils';
 
 export function PnLChart() {
   const dailyPnl = usePortfolioStore((state) => state.getDailyPnL());
@@ -48,7 +48,7 @@ export function PnLChart() {
                 style={{ fontSize: '12px' }}
               />
               <Tooltip
-                formatter={(value: number) => [formatCurrency(value), 'P&L']}
+                formatter={(value: number | undefined) => [value !== undefined ? formatCurrency(value) : '$0.00', 'P&L']}
                 labelFormatter={(label) => new Date(label).toLocaleDateString('en-US', {
                   month: 'long',
                   day: 'numeric',

@@ -1,22 +1,102 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useTradeStore } from '../store/useTradeStore';
+import { usePortfolioStore } from '../store/usePortfolioStore';
+import { PnLChart } from '../components/charts/PnLChart';
+import { PositionTable } from '../components/dashboard/PositionTable';
+import { TradeHistory } from '../components/dashboard/TradeHistory';
+import { Card } from '../components/ui/Card';
+import { formatCurrency, formatPercent, getColorClass } from '../lib/utils';
+
 export default function DashboardPage() {
+  const { fetchTrades, trades } = useTradeStore();
+  const { fetchPositions, fetchPerformance, account, getTotalPnL, performance } = usePortfolioStore();
+
+  useEffect(() => {
+    // Initial fetch
+    fetchTrades();
+    fetchPositions();
+    fetchPerformance();
+
+    // Poll for updates every 2 seconds
+    const interval = setInterval(() => {
+      fetchTrades();
+      fetchPositions();
+      fetchPerformance();
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [fetchTrades, fetchPositions, fetchPerformance]);
+
+  const totalPnL = getTotalPnL();
+  const totalPnLPct = account?.portfolio_value
+    ? (totalPnL / (account.portfolio_value - totalPnL)) * 100
+    : 0;
+
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4 text-black">Trading Bot Dashboard</h1>
-      <div className="bg-white rounded-lg shadow p-6 mt-4">
-        <h2 className="text-lg font-semibold mb-2 text-black">Status</h2>
-        <p className="text-gray-600">Dashboard is loading successfully!</p>
-        <p className="text-sm text-gray-500 mt-2">
-          The Python bot will sync data to this dashboard in real-time.
-        </p>
+    <div className="space-y-6">
+      {/* Page Title */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Portfolio Overview</h1>
+        <p className="text-gray-600 mt-1">Monitor your paper trading performance and positions</p>
       </div>
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-        <p className="text-blue-800 font-medium">✅ Frontend is working!</p>
-        <p className="text-blue-600 text-sm mt-1">
-          Next: Start the Python bot to see your trading data here.
-        </p>
+
+      {/* Account Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <div>
+            <p className="text-sm text-gray-600 mb-1">Portfolio Value</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {account ? formatCurrency(account.portfolio_value) : '$0.00'}
+            </p>
+          </div>
+        </Card>
+
+        <Card>
+          <div>
+            <p className="text-sm text-gray-600 mb-1">Cash</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {account ? formatCurrency(account.cash) : '$0.00'}
+            </p>
+          </div>
+        </Card>
+
+        <Card>
+          <div>
+            <p className="text-sm text-gray-600 mb-1">Total P&L</p>
+            <p className={`text-2xl font-bold ${getColorClass(totalPnL)}`}>
+              {formatCurrency(totalPnL)}
+            </p>
+            {totalPnLPct !== 0 && (
+              <p className={`text-sm ${getColorClass(totalPnLPct)}`}>
+                {formatPercent(totalPnLPct / 100, 2)}
+              </p>
+            )}
+          </div>
+        </Card>
+
+        <Card>
+          <div>
+            <p className="text-sm text-gray-600 mb-1">Total Trades</p>
+            <p className="text-2xl font-bold text-gray-900">{trades.length}</p>
+            {performance?.metrics.win_rate !== undefined && (
+              <p className="text-sm text-gray-600">
+                {formatPercent(performance.metrics.win_rate, 0)} Win Rate
+              </p>
+            )}
+          </div>
+        </Card>
       </div>
+
+      {/* P&L Chart */}
+      <PnLChart />
+
+      {/* Positions Table */}
+      <PositionTable />
+
+      {/* Recent Trades */}
+      <TradeHistory limit={10} />
     </div>
   );
 }

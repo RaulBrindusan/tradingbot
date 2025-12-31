@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Quote, Bar, MarketClock } from '@/lib/types';
+import { Quote, Bar, MarketClock } from '../lib/types';
 
 interface MarketStore {
   quotes: Record<string, Quote>;

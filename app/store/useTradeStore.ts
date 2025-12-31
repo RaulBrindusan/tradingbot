@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Trade } from '@/lib/types';
+import { Trade } from '../lib/types';
 
 interface TradeStore {
   trades: Trade[];

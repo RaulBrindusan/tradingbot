@@ -1,8 +1,8 @@
 'use client';
 
-import { usePortfolioStore } from '@/store/usePortfolioStore';
+import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
-import { formatCurrency, formatPercent, getColorClass } from '@/lib/utils';
+import { formatCurrency, formatPercent, getColorClass } from '../../lib/utils';
 
 export function PositionTable() {
   const positions = usePortfolioStore((state) => state.positions);

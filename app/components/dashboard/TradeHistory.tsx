@@ -1,9 +1,9 @@
 'use client';
 
-import { useTradeStore } from '@/store/useTradeStore';
+import { useTradeStore } from '../../store/useTradeStore';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { Badge } from '../ui/Badge';
-import { formatCurrency, formatDateTime } from '@/lib/utils';
+import { formatCurrency, formatDateTime } from '../../lib/utils';
 
 interface TradeHistoryProps {
   limit?: number;

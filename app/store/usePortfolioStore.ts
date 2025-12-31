@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Position, Account, Performance, DailyPnL } from '@/lib/types';
+import { Position, Account, Performance, DailyPnL } from '../lib/types';
 
 interface PortfolioStore {
   positions: Position[];
