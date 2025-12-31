@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -16,6 +17,12 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  // Prevent hydration mismatch by only using pathname on client
+  const [clientPathname, setClientPathname] = useState('');
+
+  useEffect(() => {
+    setClientPathname(pathname);
+  }, [pathname]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -30,7 +37,7 @@ export default function DashboardLayout({
             </div>
             <nav className="flex space-x-4">
               {navigation.map((item) => {
-                const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
+                const isActive = clientPathname === item.href || clientPathname?.startsWith(item.href + '/');
                 return (
                   <Link
                     key={item.name}
