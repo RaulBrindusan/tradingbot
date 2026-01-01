@@ -8,7 +8,8 @@ export default function HomeClient() {
 
   useEffect(() => {
     router.replace('/dashboard');
-  }, [router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once on mount
 
   return (
     <div className="flex items-center justify-center min-h-screen">
