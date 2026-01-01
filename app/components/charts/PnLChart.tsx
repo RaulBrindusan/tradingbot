@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { formatCurrency } from '../../lib/utils';
 
 export function PnLChart() {
-  const dailyPnl = usePortfolioStore((state) => state.getDailyPnL());
+  const dailyPnl = usePortfolioStore((state) => state.performance?.daily_pnl) || [];
 
   if (!dailyPnl || dailyPnl.length === 0) {
     return (
