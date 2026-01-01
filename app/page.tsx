@@ -1,8 +1,18 @@
-import HomeClient from './HomeClient';
+'use client';
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  return <HomeClient />;
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/dashboard');
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-gray-500">Redirecting...</div>
+    </div>
+  );
 }
