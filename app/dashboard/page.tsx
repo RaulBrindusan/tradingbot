@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useTradeStore } from '../store/useTradeStore';
 import { usePortfolioStore } from '../store/usePortfolioStore';
 import { PnLChart } from '../components/charts/PnLChart';
@@ -13,19 +13,22 @@ export default function DashboardPage() {
   const { fetchTrades, trades } = useTradeStore();
   const { fetchPositions, fetchPerformance, account, getTotalPnL, performance } = usePortfolioStore();
 
-  // Memoize fetch functions to prevent infinite loops
-  const fetchData = useCallback(() => {
+  useEffect(() => {
+    // Call immediately
     fetchTrades();
     fetchPositions();
     fetchPerformance();
-  }, [fetchTrades, fetchPositions, fetchPerformance]);
 
-  useEffect(() => {
-    fetchData();
+    // Set up polling
+    const interval = setInterval(() => {
+      fetchTrades();
+      fetchPositions();
+      fetchPerformance();
+    }, 2000);
 
-    const interval = setInterval(fetchData, 2000);
     return () => clearInterval(interval);
-  }, [fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount
 
   const totalPnL = getTotalPnL();
   const totalPnLPct = account?.portfolio_value
