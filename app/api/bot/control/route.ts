@@ -4,6 +4,9 @@ import path from 'path';
 
 const CONTROL_FILE = path.join(process.cwd(), 'bot/data/bot_control.json');
 
+// Check if running in serverless environment (Vercel)
+const isServerless = process.env.VERCEL === '1' || !fs.existsSync(path.join(process.cwd(), 'bot'));
+
 interface ControlRequest {
   action: 'start' | 'pause' | 'stop';
 }
@@ -23,6 +26,14 @@ export async function POST(request: Request) {
     if (!['start', 'pause', 'stop'].includes(action)) {
       return NextResponse.json(
         { error: 'Invalid action. Must be start, pause, or stop' },
+        { status: 400 }
+      );
+    }
+
+    // If in serverless environment, return error
+    if (isServerless) {
+      return NextResponse.json(
+        { error: 'Bot control is only available in local development environment. The bot runs on your local machine, not on Vercel.' },
         { status: 400 }
       );
     }
@@ -48,6 +59,12 @@ export async function POST(request: Request) {
       last_updated: new Date().toISOString(),
       error: null
     };
+
+    // Ensure directory exists
+    const dataDir = path.dirname(CONTROL_FILE);
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
 
     // Write updated state
     fs.writeFileSync(CONTROL_FILE, JSON.stringify(newState, null, 2));

@@ -4,8 +4,24 @@ import path from 'path';
 
 const CONTROL_FILE = path.join(process.cwd(), 'bot/data/bot_control.json');
 
+// Check if running in serverless environment (Vercel)
+const isServerless = process.env.VERCEL === '1' || !fs.existsSync(path.join(process.cwd(), 'bot'));
+
 export async function GET() {
   try {
+    // If in serverless environment, return default state
+    if (isServerless) {
+      const defaultState = {
+        status: 'stopped',
+        mode: 'paper',
+        last_updated: new Date().toISOString(),
+        error: 'Bot can only run in local development environment',
+        symbols: ['AAPL', 'MSFT', 'GOOGL', 'TSLA'],
+        isServerless: true
+      };
+      return NextResponse.json(defaultState);
+    }
+
     // Check if control file exists
     if (!fs.existsSync(CONTROL_FILE)) {
       // Create default control file if it doesn't exist
@@ -16,6 +32,13 @@ export async function GET() {
         error: null,
         symbols: ['AAPL', 'MSFT', 'GOOGL', 'TSLA']
       };
+
+      // Ensure directory exists
+      const dataDir = path.dirname(CONTROL_FILE);
+      if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true });
+      }
+
       fs.writeFileSync(CONTROL_FILE, JSON.stringify(defaultState, null, 2));
       return NextResponse.json(defaultState);
     }
@@ -27,9 +50,13 @@ export async function GET() {
     return NextResponse.json(controlState);
   } catch (error) {
     console.error('Error reading bot status:', error);
-    return NextResponse.json(
-      { error: 'Failed to read bot status' },
-      { status: 500 }
-    );
+    // Return a safe default state instead of error
+    return NextResponse.json({
+      status: 'stopped',
+      mode: 'paper',
+      last_updated: new Date().toISOString(),
+      error: 'Failed to read bot status',
+      symbols: ['AAPL', 'MSFT', 'GOOGL', 'TSLA']
+    });
   }
 }
