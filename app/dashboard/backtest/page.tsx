@@ -265,7 +265,7 @@ export default function BacktestPage() {
                       style={{ fontSize: '12px' }}
                     />
                     <Tooltip
-                      formatter={(value: number) => [formatCurrency(value), 'Portfolio Value']}
+                      formatter={(value: number | undefined) => [formatCurrency(value || 0), 'Portfolio Value']}
                       contentStyle={{
                         backgroundColor: chartColors.tooltipBg,
                         border: `1px solid ${chartColors.tooltipBorder}`,
