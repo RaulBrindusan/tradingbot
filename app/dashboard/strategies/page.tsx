@@ -311,7 +311,7 @@ export default function StrategiesPage() {
                         <Badge variant="success" className="text-xs">✓ Implemented</Badge>
                       )}
                       {selectedStrategies[strategy.code] && (
-                        <Badge variant="primary" className="text-xs bg-blue-500 text-white">● Active</Badge>
+                        <Badge variant="info" className="text-xs bg-blue-500 dark:bg-blue-600 text-white dark:text-white">● Active</Badge>
                       )}
                     </h2>
                     <div className="flex gap-2 mb-2">
