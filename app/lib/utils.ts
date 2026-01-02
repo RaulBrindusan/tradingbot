@@ -61,15 +61,15 @@ export function formatTime(dateString: string): string {
 
 // Get color based on value (positive/negative)
 export function getColorClass(value: number): string {
-  if (value > 0) return 'text-green-600';
-  if (value < 0) return 'text-red-600';
-  return 'text-gray-600';
+  if (value > 0) return 'text-green-600 dark:text-green-400';
+  if (value < 0) return 'text-red-600 dark:text-red-400';
+  return 'text-gray-600 dark:text-gray-400';
 }
 
 export function getBgColorClass(value: number): string {
-  if (value > 0) return 'bg-green-50';
-  if (value < 0) return 'bg-red-50';
-  return 'bg-gray-50';
+  if (value > 0) return 'bg-green-50 dark:bg-green-900/20';
+  if (value < 0) return 'bg-red-50 dark:bg-red-900/20';
+  return 'bg-gray-50 dark:bg-gray-900/20';
 }
 
 // Calculate percentage change

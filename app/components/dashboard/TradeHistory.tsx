@@ -21,7 +21,7 @@ export function TradeHistory({ limit }: TradeHistoryProps) {
           <CardTitle>Trade History</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             No trades yet
           </div>
         </CardContent>
@@ -45,7 +45,7 @@ export function TradeHistory({ limit }: TradeHistoryProps) {
   };
 
   const getSideColor = (side: string) => {
-    return side === 'buy' ? 'text-green-600' : 'text-red-600';
+    return side === 'buy' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
   };
 
   return (
@@ -54,7 +54,7 @@ export function TradeHistory({ limit }: TradeHistoryProps) {
         <CardTitle>
           Trade History
           {limit && trades.length > limit && (
-            <span className="text-sm font-normal text-gray-500 ml-2">
+            <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
               (Showing {limit} of {trades.length})
             </span>
           )}
@@ -63,31 +63,31 @@ export function TradeHistory({ limit }: TradeHistoryProps) {
       <CardContent className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700">Time</th>
-              <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700">Symbol</th>
-              <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700">Side</th>
-              <th className="text-right py-3 px-4 font-semibold text-sm text-gray-700">Qty</th>
-              <th className="text-right py-3 px-4 font-semibold text-sm text-gray-700">Price</th>
-              <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700">Strategy</th>
-              <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700">Status</th>
+            <tr className="border-b border-gray-200 dark:border-gray-700">
+              <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">Time</th>
+              <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">Symbol</th>
+              <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">Side</th>
+              <th className="text-right py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">Qty</th>
+              <th className="text-right py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">Price</th>
+              <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">Strategy</th>
+              <th className="text-left py-3 px-4 font-semibold text-sm text-gray-700 dark:text-gray-300">Status</th>
             </tr>
           </thead>
           <tbody>
             {displayTrades.map((trade) => (
-              <tr key={trade.id} className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="py-3 px-4 text-sm text-gray-700">
+              <tr key={trade.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
+                <td className="py-3 px-4 text-sm text-gray-700 dark:text-gray-300">
                   {formatDateTime(trade.timestamp)}
                 </td>
-                <td className="py-3 px-4 font-medium text-gray-900">{trade.symbol}</td>
+                <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{trade.symbol}</td>
                 <td className={`py-3 px-4 font-medium uppercase ${getSideColor(trade.side)}`}>
                   {trade.side}
                 </td>
-                <td className="py-3 px-4 text-right text-gray-700">{trade.qty}</td>
-                <td className="py-3 px-4 text-right text-gray-700">
+                <td className="py-3 px-4 text-right text-gray-700 dark:text-gray-300">{trade.qty}</td>
+                <td className="py-3 px-4 text-right text-gray-700 dark:text-gray-300">
                   {formatCurrency(trade.price)}
                 </td>
-                <td className="py-3 px-4 text-sm text-gray-600">{trade.strategy}</td>
+                <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">{trade.strategy}</td>
                 <td className="py-3 px-4">
                   <Badge variant={getStatusVariant(trade.status)}>
                     {trade.status}
