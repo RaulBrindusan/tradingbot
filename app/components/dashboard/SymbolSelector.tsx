@@ -152,27 +152,31 @@ export function SymbolSelector({
                 {selectedSymbols.map((symbol) => {
                   const symbolInfo = TRADING_SYMBOLS.find(s => s.symbol === symbol);
                   return (
-                    <Badge
+                    <button
                       key={symbol}
-                      variant="info"
-                      className="cursor-pointer hover:opacity-80 flex items-center gap-1"
                       onClick={() => toggleSymbol(symbol)}
+                      className="inline-flex"
                     >
-                      {symbol}
-                      <svg
-                        className="w-3 h-3"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                      <Badge
+                        variant="info"
+                        className="cursor-pointer hover:opacity-80 flex items-center gap-1"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
+                        {symbol}
+                        <svg
+                          className="w-3 h-3"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                           strokeWidth={2}
                           d="M6 18L18 6M6 6l12 12"
                         />
                       </svg>
-                    </Badge>
+                      </Badge>
+                    </button>
                   );
                 })}
               </div>
